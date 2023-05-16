@@ -30,6 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ApiController {
     @Autowired
     private EmlakRepo emlakRepo;
@@ -43,6 +44,7 @@ public class ApiController {
     @CrossOrigin
     @GetMapping(value="/evler")
     public List<Emlak> getEvler(){return emlakRepo.findAll();}
+
     @CrossOrigin
     @GetMapping(value="/evler/{id}")
     public Emlak getEv(@PathVariable long id){
@@ -62,14 +64,18 @@ public class ApiController {
         String username = request.getUsername();
         String password = request.getPassword();
         String role = request.getRole();
-        if(role == "emlak"){
-            role="ADMIN";
-        }else{
-            role="USER";
-        }
+
         return userService.createUser(username, password,role);
     }
     @CrossOrigin
+    @PostMapping(value="/filtre")
+    public List<Emlak> getKiralik(@RequestBody Emlak filtre){
+        String isinma = filtre.getIsinma();
+        String kiralik = filtre.getKiralik();
+        String tur = filtre.getTur();
+        return emlakRepo.filtreleEmlak(isinma,kiralik,tur);
+    }
+    @CrossOrigin(origins = "*")
     @PostMapping("/girisyap")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         // Kullanıcının kimlik doğrulamasını yap
@@ -106,9 +112,9 @@ public class ApiController {
 
             // Yüklenen dosyayı kaydetmek için gereken kodu yazın
             String fileName = StringUtils.cleanPath(foto.getOriginalFilename());
-            Path path = Paths.get("C:\\safesite_documents\\" + fileName);
+            Path path = Paths.get("C:/MAMP/htdocs/quarter/img/emlak/" + fileName);
             Files.copy(foto.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            Emlak emlak = new Emlak(mkare, osayi, bkati, bbkat, isinma, ucret, tur, kiralik, "C:\\\safesite_documents\\" +fileName, tam_adres, sehir, sokak, zip);
+            Emlak emlak = new Emlak(mkare, osayi, bkati, bbkat, isinma, ucret, tur, kiralik, "img/emlak/" +fileName, tam_adres, sehir, sokak, zip);
             emlakRepo.save(emlak);
             return ResponseEntity.ok().body("Başarılı");
         }catch (IOException e){

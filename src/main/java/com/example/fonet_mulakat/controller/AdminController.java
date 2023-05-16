@@ -17,6 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/admin")
 public class AdminController {
     @Autowired
